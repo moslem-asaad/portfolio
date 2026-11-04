@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Moslem Asaad Portfolio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#eceff2;--paper:#f8f9fb;--fg:#12161c;--muted:#566070;--rule:#c5ccd6;--accent:#0a6b57;--soft:#d3ece5;
+--d:"Archivo","Helvetica Neue",Arial,sans-serif;--b:"IBM Plex Sans",system-ui,sans-serif;--m:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;background:var(--bg);color:var(--fg);font:9.4pt/1.5 var(--b)}
+.page{width:210mm;height:297mm;padding:13mm 14mm 11mm;background:var(--bg);page-break-after:always;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.page:last-child{page-break-after:auto}
+h1,h2,h3{font-family:var(--d);margin:0;line-height:1.05}
+p{margin:0}
+.lab{font:500 7.2pt var(--m);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;justify-content:space-between;border-bottom:1.6pt solid var(--fg);padding-bottom:3mm;margin-bottom:6mm}
+.foot{margin-top:auto;border-top:1.6pt solid var(--fg);padding-top:2.5mm;display:flex;justify-content:space-between}
+h2.sec{font-size:21pt;font-weight:800;font-stretch:108%;margin-bottom:4mm}
+.rule{border-top:1.6pt solid var(--fg)}
+/* cover */
+.heads{background:var(--soft);border-left:2.4pt solid var(--accent);padding:3.2mm 4.5mm;font:500 9.6pt/1.45 var(--b)}
+.heads b{font-family:var(--d);font-weight:800}
+.cover h1{font-size:50pt;font-weight:800;font-stretch:114%;letter-spacing:-.02em;margin-top:10mm}
+.cover .role{font:600 15pt/1.2 var(--d);margin-top:6mm;max-width:120mm}
+.cover .pitch{margin-top:6mm;max-width:130mm;color:var(--muted);font-size:10.5pt}
+.man{margin-top:12mm;background:var(--paper);border:.6pt solid var(--rule);border-top:3pt solid var(--accent);padding:4mm 5mm}
+.man .row{display:grid;grid-template-columns:30mm 1fr;gap:4mm;padding:1.8mm 0;border-top:.6pt dashed var(--rule)}
+.man .row:first-of-type{border-top:0}
+.man dt{font:500 7pt var(--m);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:.4mm}
+.man dd{margin:0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);margin-top:8mm;border:.6pt solid var(--rule);background:var(--paper)}
+.kpis div{padding:3.5mm;border-right:.6pt solid var(--rule)}.kpis div:last-child{border-right:0}
+.kpis b{display:block;font:800 21pt/1.1 var(--d);font-stretch:110%;color:var(--accent)}
+.kpis span{font-size:7.8pt;color:var(--muted);line-height:1.3;display:block;margin-top:1mm}
+.contact{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:2mm 8mm;border-top:1.6pt solid var(--fg);padding-top:4mm}
+.contact div{display:grid;grid-template-columns:20mm 1fr;gap:3mm}
+/* case */
+.case{display:grid;grid-template-columns:1fr 1fr;gap:8mm}
+.case h3{font-size:15pt;font-weight:750;font-stretch:105%}
+.case .lede{font-size:10.2pt;margin-top:3mm}.case p+p{margin-top:2.6mm}
+ol.flow{list-style:none;margin:0;padding:0;counter-reset:s;border-left:1.4pt solid var(--fg)}
+ol.flow li{position:relative;padding:0 0 3.6mm 7mm;counter-increment:s}
+ol.flow li::before{content:counter(s);position:absolute;left:-3.2mm;top:0;width:5.6mm;height:5.6mm;border-radius:50%;background:var(--accent);color:#fff;font:500 7pt var(--m);display:grid;place-items:center}
+ol.flow strong{font:700 9.6pt/1.25 var(--d);display:block}
+ol.flow span{font-size:8.4pt;color:var(--muted);display:block}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);margin-top:6mm;border:.6pt solid var(--rule);background:var(--paper)}
+.facts div{padding:3.5mm;border-right:.6pt solid var(--rule)}.facts div:last-child{border-right:0}
+.facts b{display:block;font:800 19pt/1.1 var(--d);font-stretch:110%;color:var(--accent)}
+.facts span{font-size:7.8pt;color:var(--muted);line-height:1.3;display:block;margin-top:1mm}
+table{border-collapse:collapse;width:100%;font-size:8.2pt;background:var(--paper);border:.6pt solid var(--rule)}
+th,td{text-align:left;padding:1.8mm 2.5mm;border-bottom:.6pt solid var(--rule);vertical-align:top}
+th{font:500 6.8pt var(--m);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.note{font-size:7.8pt;color:var(--muted);margin-top:1.6mm}
+.sub{font:700 11.5pt var(--d);font-stretch:104%;margin:5mm 0 2mm}
+/* work */
+.work{list-style:none;margin:0;padding:0}
+.work li{display:grid;grid-template-columns:42mm 1fr 36mm;gap:5mm;padding:3.3mm 0;border-bottom:.6pt solid var(--rule)}
+.work li:first-child{border-top:.6pt solid var(--rule)}
+.work h3{font-size:11pt;font-weight:700;font-stretch:104%}
+.work .st{font:400 7.2pt/1.55 var(--m);color:var(--muted)}
+.work p{font-size:8.7pt;line-height:1.45}
+/* chart */
+.chart{margin-top:2mm;border:.6pt solid var(--rule);background:var(--paper);padding:3mm 3mm 1mm}
+.chart svg{display:block;width:100%;height:auto;font-family:var(--m)}
+.bar-pr{fill:var(--accent)}.bar-rev{fill:#8a93a1}
+.grid{stroke:var(--rule);stroke-width:1}
+.chart text{fill:var(--muted);font-size:10px}.chart text.v{fill:var(--fg);font-size:9px}
+.legend{display:flex;gap:5mm;margin-bottom:1mm}
+.legend span::before{content:"";display:inline-block;width:2.4mm;height:2.4mm;margin-right:1.5mm;background:var(--accent)}
+.legend span+span::before{background:#8a93a1}
+/* last page */
+.job{display:grid;grid-template-columns:34mm 1fr;gap:5mm;padding:2.6mm 0;border-top:.6pt dashed var(--rule)}
+.job:first-of-type{border-top:0}
+.job h3{font-size:11.5pt;font-weight:700;font-stretch:104%}
+.job ul{margin:1.2mm 0 0;padding-left:4.2mm}.job li{margin-top:.8mm;font-size:8.8pt}
+.skills{display:grid;grid-template-columns:1fr 1fr;gap:0 8mm}
+.sk{display:grid;grid-template-columns:23mm 1fr;gap:3mm;padding:1.8mm 0;border-bottom:.6pt solid var(--rule);font-size:8.6pt}
+.sk dt{font:500 6.8pt var(--m);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:.5mm}
+.sk dd{margin:0}
+a{color:var(--accent);text-decoration:none;font-weight:500}
+</style></head>
+<body>
+
+<!-- 1 COVER -->
+<section class="page cover">
+  <div class="top lab"><span>Portfolio · 2026</span><span>Updated 4 Nov 2026</span></div>
+  <p class="heads"><b>Heads up:</b> this is an auto-generated portfolio, made by a skill I wrote. Enjoy ;)</p>
+  <h1>Moslem<br>Asaad</h1>
+  <p class="role">Full-stack engineer who takes features from design to production.</p>
+  <p class="pitch">I build React and Node.js features for a delivery-management platform used by enterprise retailers and carriers. I came up through test automation, so every change I ship has tests, and risky ones go out behind feature flags.</p>
+  <div class="kpis">
+    <div><b>190+</b><span>pull requests merged since Jul 2025</span></div>
+    <div><b>430+</b><span>code reviews of teammates' work</span></div>
+    <div><b>1 → 12</b><span>repositories, Jul 2025 to Aug 2026</span></div>
+    <div><b>6</b><span>services changed in my featured project</span></div>
+  </div>
+  <dl class="man">
+    <div class="row"><dt>Role</dt><dd>Full-Stack Software Engineer, Bringg (QA automation Jul 2025 to Mar 2026)</dd></div>
+    <div class="row"><dt>Core stack</dt><dd>TypeScript, React, Angular, Node.js, Ruby on Rails, PostgreSQL</dd></div>
+    <div class="row"><dt>Also</dt><dd>LLM integration, AI agents, k6 load testing, Java and Selenium</dd></div>
+    <div class="row"><dt>Degree</dt><dd>B.Sc. Software Engineering, Ben-Gurion University, 2024 · GPA 82.13</dd></div>
+    <div class="row"><dt>Languages</dt><dd>Arabic, Hebrew, English</dd></div>
+  </dl>
+  <div class="contact">
+    <div><span class="lab">Email</span><span>asaadmoslem2000@gmail.com</span></div>
+    <div><span class="lab">Phone</span><span>058-686-8437</span></div>
+    <div><span class="lab">Based in</span><span>Jatt, Israel</span></div>
+    <div><span class="lab">LinkedIn</span><a href="https://www.linkedin.com/in/moslem-asaad-20b8a1219/">linkedin.com/in/moslem-asaad-20b8a1219</a></div>
+    <div><span class="lab">GitHub</span><a href="https://github.com/moslem-asaad">github.com/moslem-asaad</a></div>
+  </div>
+</section>
+
+<!-- 2 FEATURED -->
+<section class="page">
+  <div class="top lab"><span>Moslem Asaad · Portfolio</span><span>Featured project</span></div>
+  <div class="lab" style="margin-bottom:1.5mm">Regulatory deadline · 5 Oct 2026</div>
+  <h2 class="sec">Digital transport documents with a scannable QR code</h2>
+  <div class="case">
+    <div>
+      <p class="lede">Spain's Sustainable Mobility Law 9/2025 requires the transport document to be digital and scannable by roadside inspectors. Bringg had no route-level document, no QR code and no way to tell a customer's system about one.</p>
+      <p>I took this from design document to production across 6 services. When a driver starts a route, the platform generates a compliance PDF, stores it for 7 days after the route ends, and sends the driver app a link it turns into a QR code on the device, so it works offline. The customer's systems get a webhook when the document is ready.</p>
+      <p>I designed the database schema and an idempotent write path (one document per route, enforced in application code), added server-side PDF rendering to the templates service, resolved the right truck and trailer plates for each route, and wrote the test plans and integration guide for the webhook. I am now extending the end-to-end automation to the webhook and the QR code on mobile, repeating each test 50 times to prove it is stable.</p>
+    </div>
+    <ol class="flow">
+      <li><strong>Driver starts a route</strong><span>The core platform publishes a route-started event.</span></li>
+      <li><strong>Eligibility check and claim</strong><span>A Node.js service reads the merchant and team configuration, then claims the route so a retry never creates a second document.</span></li>
+      <li><strong>PDF render</strong><span>The templates service builds the document with vehicle and trailer plates and renders it through Gotenberg.</span></li>
+      <li><strong>Store and notify</strong><span>The document is saved with a token and a retention date. A documents_ready webhook goes to the customer and a real-time update tells the driver app.</span></li>
+      <li><strong>Roadside scan</strong><span>The inspector scans the QR code. A token-guarded URL returns the PDF, or a clear error when it has expired.</span></li>
+    </ol>
+  </div>
+  <div class="facts">
+    <div><b>6</b><span>services changed: core platform, event service, templates, data layer, types, realtime</span></div>
+    <div><b>48 / 50</b><span>documents delivered when 50 routes started in 2.5 seconds; the other 2 failed fast in 1.4 s</span></div>
+    <div><b>9.5 s</b><span>p95 end to end at a steady 10 to 30 route starts per second, against a 10 s target</span></div>
+  </div>
+  <div class="sub">Load tests I designed and ran on staging with k6</div>
+  <table>
+    <thead><tr><th>Scenario</th><th>Load</th><th>Result</th><th>What I learned</th></tr></thead>
+    <tbody>
+      <tr><td>Parallel burst</td><td>50 route starts at once</td><td>96% delivered, p95 13.6 s</td><td>Slow tail comes from the Chromium queue</td></tr>
+      <tr><td>Baseline</td><td>1 per second, 2 minutes</td><td>Passed</td><td>Reference numbers for comparison</td></tr>
+      <tr><td>Find capacity</td><td>Ramp 10 to 30 per second, 10 minutes</td><td>73.5% delivered, p95 9.5 s</td><td>The limit moves from our concurrency gate to Gotenberg's Chromium capacity</td></tr>
+    </tbody>
+  </table>
+  <p class="note">The results led to removing the concurrency gate in the PDF renderer, so capacity is now bounded by the render service itself.</p>
+  <div class="foot lab"><span>Moslem Asaad</span><span>2</span></div>
+</section>
+
+<!-- 3 MORE WORK -->
+<section class="page">
+  <div class="top lab"><span>Moslem Asaad · Portfolio</span><span>More work · 2026</span></div>
+  <h2 class="sec">More work</h2>
+  <ul class="work">
+    <li><div><h3>AI analyst assistant</h3><p class="st" style="margin-top:1mm">React · TypeScript · AG-UI</p></div>
+      <p>Brought an AI analytics agent into the web app. I defined the typed streaming chat contract, exposed it through the public TypeScript SDK and built the React chat drawer, including thread lists and a new-messages pill that only counts unseen replies.</p>
+      <p class="st">Contract types<br>SDK client<br>Chat UI with tests</p></li>
+    <li><div><h3>Live auto-dispatch status</h3><p class="st" style="margin-top:1mm">Node.js · PostgreSQL · Rails · React</p></div>
+      <p>Saved the outcome of every route-optimization cycle per order, then served it through batch APIs, real-time events and a filterable, sortable column in the dispatcher UI. I planned and split it into 15 sub-tasks across 6 repositories over three sprints: build the data path, deploy 4 backend services in one day, then merge the UI. It is the largest feature I have owned end to end.</p>
+      <p class="st">3 sprints<br>8+ repositories<br>20+ sub-tasks</p></li>
+    <li><div><h3>Print receipt</h3><p class="st" style="margin-top:1mm">React · SDK · Node.js</p></div>
+      <p>Led the first full-stack feature I owned: dispatchers print order receipts straight from the dispatch UI. It covered the SDK integration with the templates service, the print menus in the web app, deprecating an unused printer field, a backport to the older UI, and a validation step that stops broken print templates from being saved.</p>
+      <p class="st">9 PRs in 3 repositories<br>Apr to May 2026</p></li>
+    <li><div><h3>Test platform and React 18 upgrade</h3><p class="st" style="margin-top:1mm">Java · Selenium · React Testing Library</p></div>
+      <p>In QA automation I stabilized flaky tests for six months, refactored the page-object hierarchy in 3 days, and started an Automated Merchant Builder that removed manual onboarding checks. Later I migrated 180+ front-end test files for the React 18 upgrade in 3 days, and wrote AGENTS.md guides so AI tools write tests that follow our patterns.</p>
+      <p class="st">Flaky-test owner<br>180+ files in 3 days<br>5-month epic</p></li>
+    <li><div><h3>Geocoding reliability</h3><p class="st" style="margin-top:1mm">Node.js · Redis · Google Places</p></div>
+      <p>Fixed drivers being sent to stale addresses after a waypoint update, a place-details cache that stored the wrong data, and a missing-city fallback. Each fix shipped behind a feature flag, with logging for the move from old cache entries.</p>
+      <p class="st">3 production bugs<br>Feature-flagged<br>Regression tests</p></li>
+    <li><div><h3>Dispatcher UI and migration</h3><p class="st" style="margin-top:1mm">React · Angular · TypeScript</p></div>
+      <p>Added order cost and quantity to map tooltips, route-level inventory totals, and parking spots that follow the map selection. Rewrote a legacy Angular settings page in React and removed pages no customer used. Fixed realtime route loading and order counts when teams are expanded, behind feature flags.</p>
+      <p class="st">Order Explorer<br>Map and Gantt timeline<br>Angular to React</p></li>
+    <li><div><h3>Merchant-onboarding agent</h3><p class="st" style="margin-top:1mm">TypeScript · LLM agents</p></div>
+      <p>Hackathon project, January 2026. An LLM agent that sets up a new merchant by creating its delivery blocks and teams through platform APIs.</p>
+      <p class="st">Hackathon<br>Tool-calling agent</p></li>
+  </ul>
+  <div class="foot lab"><span>Moslem Asaad</span><span>3</span></div>
+</section>
+
+<!-- 4 GROWTH -->
+<section class="page">
+  <div class="top lab"><span>Moslem Asaad · Portfolio</span><span>Jul 2025 to Nov 2026</span></div>
+  <h2 class="sec">Growth in numbers</h2>
+  <p style="max-width:150mm">I joined with no professional engineering experience and started as a QA automation engineer, with one repository. Each month the scope grew: more repositories, more reviews of other people's code, then features I owned across the stack.</p>
+  <div class="chart">
+    <div class="legend lab"><span>PRs merged</span><span>Code reviews</span></div>
+    <div id="monthly-chart"></div>
+  </div>
+  <p class="note">Through May 2026 the counts come from my activity reports; from June on they are counted directly from GitHub. November counts only the first 4 days.</p>
+  <div class="sub">Month by month, June to November 2026</div>
+  <table>
+    <thead><tr><th>Month</th><th>What I delivered</th><th>PRs</th><th>Reviews</th></tr></thead>
+    <tbody>
+      <tr><td>Nov (to 4th)</td><td>Removed two unused legacy settings pages, fixed realtime route loading in expanding teams, started QR-code mobile automation tests</td><td>7</td><td>28</td></tr>
+      <tr><td>October</td><td>My wedding month 🎉. Even so: fixed stale geocoded addresses, closed the compliance project, opened 8 PRs including moving the merchant profile page to React</td><td>1</td><td>13</td></tr>
+      <tr><td>September</td><td>Route compliance documents merged: schema, configuration, PDF rendering, webhook, real-time updates and the load tests</td><td>17</td><td>38</td></tr>
+      <tr><td>August</td><td>Analyst chat live end to end, per-route inventory totals, compliance project started</td><td>14</td><td>32</td></tr>
+      <tr><td>July</td><td>Auto-dispatch UI merged, React 18 migration of 180+ test files, print template validation</td><td>25</td><td>58</td></tr>
+      <tr><td>June</td><td>Print receipt v1, map loading fix, auto-dispatch status built across 6 repositories</td><td>27</td><td>67</td></tr>
+    </tbody>
+  </table>
+  <div class="sub">Initiatives I led or owned</div>
+  <table>
+    <thead><tr><th>Initiative</th><th>When</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Flaky-test stabilization</td><td>Jul to Dec 2025</td><td>Fewer false CI failures and faster releases</td></tr>
+      <tr><td>Automated Merchant Builder</td><td>Nov 2025 to Mar 2026</td><td>Replaced manual QA for merchant onboarding</td></tr>
+      <tr><td>Print receipt</td><td>Apr to May 2026</td><td>Dispatchers print receipts from the dispatch UI</td></tr>
+      <tr><td>Map grey-screen fix</td><td>May 2026</td><td>Two independent root causes found in 2 days</td></tr>
+      <tr><td>Auto-dispatch status</td><td>Jun to Jul 2026</td><td>Live in production across 8+ repositories</td></tr>
+      <tr><td>Analyst chat</td><td>Aug 2026</td><td>4 pull requests merged in one day to go live</td></tr>
+      <tr><td>Route compliance documents</td><td>Aug to Sep 2026</td><td>Merged and load-tested before the 5 Oct 2026 deadline</td></tr>
+    </tbody>
+  </table>
+  <div class="foot lab"><span>Moslem Asaad</span><span>4</span></div>
+</section>
+
+<!-- 5 EXPERIENCE, SIDE, SKILLS -->
+<section class="page">
+  <div class="top lab"><span>Moslem Asaad · Portfolio</span><span>Experience and skills</span></div>
+  <h2 class="sec">Experience</h2>
+  <div class="job"><div class="lab">Apr 2026 to present</div><div><h3>Bringg, Full-Stack Software Engineer</h3><ul>
+    <li>Own features from design to production across 12+ repositories: 190+ PRs merged and 430+ code reviews since joining.</li>
+    <li>Led the QR-code compliance project, the AI analyst assistant, auto-dispatch status and print receipt.</li>
+    <li>Work daily with Product, Design and backend teams to turn customer issues into shipped fixes.</li></ul></div></div>
+  <div class="job"><div class="lab">Jul 2025 to Mar 2026</div><div><h3>Bringg, QA Automation Engineer</h3><ul>
+    <li>Built the Java and Selenium end-to-end suite for route planning, dispatch, orders, timeline and inventory, starting with 16 tests in 6 days.</li>
+    <li>Owned flaky-test stabilization for six months; refactored the page-object hierarchy in 3 days and adapted the suite to React 18.</li>
+    <li>Led the Automated Merchant Builder epic for 5 months and added E2E coverage for webhook pipelines.</li></ul></div></div>
+  <div class="job"><div class="lab">2024</div><div><h3>B.Sc. Software Engineering</h3><p style="color:var(--muted);margin-top:1mm">Ben-Gurion University of the Negev · GPA 82.13</p></div></div>
+
+  <h2 class="sec" style="margin-top:3mm">Side projects</h2>
+  <ul class="work">
+    <li><div><h3>DevQALink</h3><p class="st" style="margin-top:1mm">Full-stack · JavaScript</p></div><p>A framework connecting QA and development teams: schedule test bundles against a build, get reports, and open bug tickets automatically from failures.</p><p class="st">github.com/moslem-asaad<br>/DevQALink</p></li>
+    <li><div><h3>PAManager</h3><p class="st" style="margin-top:1mm">JavaScript · Firebase · Vite</p></div><p>A private monthly-accounts tracker in Arabic with real-time sync, offline use, JSON backup and restore, and Firestore security rules. GitHub Actions tests, builds and deploys it.</p><p class="st">/PAManager</p></li>
+    <li><div><h3>Albinaa progress</h3><p class="st" style="margin-top:1mm">JavaScript · Firebase · Supabase</p></div><p>An Arabic progress tracker with Google sign-in, cross-device sync and private lesson-PDF storage with 10-minute links.</p><p class="st">/albinaa-progress</p></li>
+    <li><div><h3>Systems and coursework</h3><p class="st" style="margin-top:1mm">C · OCaml · Java · Python</p></div><p>A shell in C, operating-systems exercises, a compiler in OCaml, and numerical analysis in Python.</p><p class="st">All repositories on GitHub</p></li>
+  </ul>
+
+  <h2 class="sec" style="margin-top:3mm">Technical skills</h2>
+  <dl class="skills" style="margin:0">
+    <div class="sk"><dt>Languages</dt><dd>TypeScript, JavaScript, Ruby, Java, Python, SQL, Dart, C</dd></div>
+    <div class="sk"><dt>Frontend</dt><dd>React, Angular, Flutter, HTML, CSS, Vite, Google Maps API, i18n, right-to-left layouts</dd></div>
+    <div class="sk"><dt>Backend</dt><dd>Node.js, Ruby on Rails, REST APIs, microservices, webhooks, real-time events, RabbitMQ, PostgreSQL, Redis, Firebase, Supabase</dd></div>
+    <div class="sk"><dt>DevOps</dt><dd>Git, Docker, Kubernetes, Jenkins, CI/CD, Grafana, OpenSearch, feature flags</dd></div>
+    <div class="sk"><dt>Testing</dt><dd>Jest, RSpec, Selenium, E2E automation, k6 load testing</dd></div>
+    <div class="sk"><dt>AI</dt><dd>LLM integration, AI agents, streaming chat UIs, prompt engineering, Claude Code</dd></div>
+  </dl>
+  <div class="foot lab"><span style="text-transform:none">asaadmoslem2000@gmail.com · 058-686-8437</span><span>5</span></div>
+</section>
+
+<script>
+(function(){
+  var months=["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov*"];
+  var prs=[9,1,2,1,3,5,7,12,24,12,31,27,25,14,17,1,7];
+  var revs=[0,7,13,10,10,14,7,24,20,25,69,67,58,32,38,13,28];
+  var W=860,H=250,L=30,R=6,T=14,B=38,pw=W-L-R,ph=H-T-B,max=70,gw=pw/months.length,bw=Math.min(22,gw/2-3);
+  var y=function(v){return T+ph-(v/max)*ph};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
+  [0,20,40,60].forEach(function(g){s+='<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+y(g)+'" y2="'+y(g)+'"/><text x="'+(L-5)+'" y="'+(y(g)+3.5)+'" text-anchor="end">'+g+'</text>'});
+  months.forEach(function(m,i){
+    var cx=L+gw*i+gw/2, yr=i===0?"2025":i===6?"2026":i===16?"to Nov 4":"";
+    s+='<rect class="bar-pr" x="'+(cx-bw-1)+'" y="'+y(prs[i])+'" width="'+bw+'" height="'+(T+ph-y(prs[i]))+'"/>';
+    s+='<rect class="bar-rev" x="'+(cx+1)+'" y="'+y(revs[i])+'" width="'+bw+'" height="'+(T+ph-y(revs[i]))+'"/>';
+    s+='<text class="v" x="'+(cx-bw/2-1)+'" y="'+(y(prs[i])-3)+'" text-anchor="middle">'+prs[i]+'</text>';
+    s+='<text class="v" x="'+(cx+bw/2+1)+'" y="'+(y(revs[i])-3)+'" text-anchor="middle">'+revs[i]+'</text>';
+    s+='<text x="'+cx+'" y="'+(H-B+14)+'" text-anchor="middle">'+m+'</text>';
+    if(yr)s+='<text x="'+cx+'" y="'+(H-B+27)+'" text-anchor="middle">'+yr+'</text>';
+  });
+  document.getElementById("monthly-chart").innerHTML=s+'</svg>';
+})();
+</script>
+</body></html>

@@ -96,7 +96,7 @@ a{color:var(--accent);text-decoration:none;font-weight:500}
     <div><b>6</b><span>services changed in my featured project</span></div>
   </div>
   <dl class="man">
-    <div class="row"><dt>Role</dt><dd>Full-Stack Software Engineer, Bringg (QA automation Jul 2025 to Mar 2026)</dd></div>
+    <div class="row"><dt>Role</dt><dd>Full-Stack Software Engineer, Bringg (QA automation Jul 2025 to Nov 2025)</dd></div>
     <div class="row"><dt>Core stack</dt><dd>TypeScript, React, Angular, Node.js, Ruby on Rails, PostgreSQL</dd></div>
     <div class="row"><dt>Also</dt><dd>LLM integration, AI agents, k6 load testing, Java and Selenium</dd></div>
     <div class="row"><dt>Degree</dt><dd>B.Sc. Software Engineering, Ben-Gurion University, 2024 · GPA 82.13</dd></div>
@@ -163,7 +163,7 @@ a{color:var(--accent);text-decoration:none;font-weight:500}
       <p>Led the first full-stack feature I owned: dispatchers print order receipts straight from the dispatch UI. It covered the SDK integration with the templates service, the print menus in the web app, deprecating an unused printer field, a backport to the older UI, and a validation step that stops broken print templates from being saved.</p>
       <p class="st">9 PRs in 3 repositories<br>Apr to May 2026</p></li>
     <li><div><h3>Test platform and React 18 upgrade</h3><p class="st" style="margin-top:1mm">Java · Selenium · React Testing Library</p></div>
-      <p>In QA automation I stabilized flaky tests for six months, refactored the page-object hierarchy in 3 days, and started an Automated Merchant Builder that removed manual onboarding checks. Later I migrated 180+ front-end test files for the React 18 upgrade in 3 days, and wrote AGENTS.md guides so AI tools write tests that follow our patterns.</p>
+      <p>In QA automation I started stabilizing flaky tests, refactored the page-object hierarchy in 3 days, and started an Automated Merchant Builder that removed manual onboarding checks. Later I migrated 180+ front-end test files for the React 18 upgrade in 3 days, and wrote AGENTS.md guides so AI tools write tests that follow our patterns.</p>
       <p class="st">Flaky-test owner<br>180+ files in 3 days<br>5-month epic</p></li>
     <li><div><h3>Geocoding reliability</h3><p class="st" style="margin-top:1mm">Node.js · Redis · Google Places</p></div>
       <p>Fixed drivers being sent to stale addresses after a waypoint update, a place-details cache that stored the wrong data, and a missing-city fallback. Each fix shipped behind a feature flag, with logging for the move from old cache entries.</p>
@@ -220,21 +220,23 @@ a{color:var(--accent);text-decoration:none;font-weight:500}
 <section class="page">
   <div class="top lab"><span>Moslem Asaad · Portfolio</span><span>Experience and skills</span></div>
   <h2 class="sec">Experience</h2>
-  <div class="job"><div class="lab">Apr 2026 to present</div><div><h3>Bringg, Full-Stack Software Engineer</h3><ul>
+  <div class="job"><div class="lab">Dec 2025 to present</div><div><h3>Bringg, Full-Stack Software Engineer</h3><ul>
     <li>Own features from design to production across 12+ repositories: 190+ PRs merged and 430+ code reviews since joining.</li>
-    <li>Led the QR-code compliance project, the AI analyst assistant, auto-dispatch status and print receipt.</li>
+    <li>Led the QR-code compliance project, the AI analyst assistant, auto-dispatch status, print receipt and the React 18 test migration.</li>
     <li>Work daily with Product, Design and backend teams to turn customer issues into shipped fixes.</li></ul></div></div>
-  <div class="job"><div class="lab">Jul 2025 to Mar 2026</div><div><h3>Bringg, QA Automation Engineer</h3><ul>
+  <div class="job"><div class="lab">Jul 2025 to Nov 2025</div><div><h3>Bringg, QA Automation Engineer</h3><ul>
     <li>Built the Java and Selenium end-to-end suite for route planning, dispatch, orders, timeline and inventory, starting with 16 tests in 6 days.</li>
-    <li>Owned flaky-test stabilization for six months; refactored the page-object hierarchy in 3 days and adapted the suite to React 18.</li>
-    <li>Led the Automated Merchant Builder epic for 5 months and added E2E coverage for webhook pipelines.</li></ul></div></div>
+    <li>Started the flaky-test stabilization work and refactored the page-object hierarchy in 3 days.</li>
+    <li>Started the Automated Merchant Builder epic and added E2E coverage for webhook pipelines.</li></ul></div></div>
   <div class="job"><div class="lab">2024</div><div><h3>B.Sc. Software Engineering</h3><p style="color:var(--muted);margin-top:1mm">Ben-Gurion University of the Negev · GPA 82.13</p></div></div>
 
   <h2 class="sec" style="margin-top:3mm">Side projects</h2>
   <ul class="work">
     <li><div><h3>DevQALink</h3><p class="st" style="margin-top:1mm">Full-stack · JavaScript</p></div><p>A framework connecting QA and development teams: schedule test bundles against a build, get reports, and open bug tickets automatically from failures.</p><p class="st">github.com/moslem-asaad<br>/DevQALink</p></li>
-    <li><div><h3>PAManager</h3><p class="st" style="margin-top:1mm">JavaScript · Firebase · Vite</p></div><p>A private monthly-accounts tracker in Arabic with real-time sync, offline use, JSON backup and restore, and Firestore security rules. GitHub Actions tests, builds and deploys it.</p><p class="st">/PAManager</p></li>
-    <li><div><h3>Albinaa progress</h3><p class="st" style="margin-top:1mm">JavaScript · Firebase · Supabase</p></div><p>An Arabic progress tracker with Google sign-in, cross-device sync and private lesson-PDF storage with 10-minute links.</p><p class="st">/albinaa-progress</p></li>
+
+
+    <li><div><h3>Injury Recovery</h3><p class="st" style="margin-top:1mm">Flutter · Dart · Firebase</p></div><p>A rehabilitation app: patients follow treatment plans with exercise videos and send feedback, and a system manager manages the content and users. Includes unit and integration tests.</p><p class="st">/Injury-Recovery</p></li>
+    <li><div><h3>Gitea automation and notifier</h3><p class="st" style="margin-top:1mm">Java · Selenium · Spring Boot · Docker</p></div><p>A Selenium and Maven test suite for a self-hosted Gitea server, plus a Spring Boot service that turns Gitea webhooks into Discord notifications, with duplicate filtering and API tests.</p><p class="st">/Gitea-Test-Automatio<br>/giteaNotificator</p></li>
     <li><div><h3>Systems and coursework</h3><p class="st" style="margin-top:1mm">C · OCaml · Java · Python</p></div><p>A shell in C, operating-systems exercises, a compiler in OCaml, and numerical analysis in Python.</p><p class="st">All repositories on GitHub</p></li>
   </ul>
 

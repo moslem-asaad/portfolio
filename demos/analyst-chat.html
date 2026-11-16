@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Analyst Chat Demo</title>
+<meta name="description" content="Interactive demo: a streaming analyst chat with tool calls, a chart and a live event stream.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+  <header class="bar">
+    <a class="label" href="../" style="text-decoration:none">← Portfolio · Moslem Asaad</a>
+    <nav class="label" aria-label="Demos">
+      <a href="qr-document.html">QR document</a>
+      <a href="webhook-playground.html">Webhook playground</a>
+      <a href="analyst-chat.html" aria-current="page" style="color:var(--accent)">Analyst chat</a>
+      <button class="theme-btn" data-theme-toggle type="button">Dark mode</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="demo-head">
+      <span class="label">Live demo · 3 of 3</span>
+      <h1 style="margin-top:10px">AI analyst chat</h1>
+      <p class="lede">At Bringg I built the React and TypeScript chat for an AI analyst assistant. Answers stream in while they are written, the agent can call tools, and the page follows a typed event stream. This demo shows the same ideas with sample delivery data.</p>
+      <p class="disclaimer"><b>Demo only.</b> No AI model is called. The answers are scripted and the data is made up. The event names on the right follow the style of the AG-UI protocol, so you can see what a streaming chat receives.</p>
+    </div>
+
+    <div class="demo" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+      <div>
+        <div class="chat">
+          <div class="chat-head">
+            <span class="label">Delivery analyst · sample data</span>
+            <span>
+              <button class="btn small" id="stop" type="button" disabled>Stop</button>
+              <button class="btn small" id="clear" type="button">New chat</button>
+            </span>
+          </div>
+          <div class="chat-msgs" id="msgs" aria-live="polite"></div>
+          <div class="chips" id="chips"></div>
+          <form class="chat-input" id="form" autocomplete="off">
+            <input id="q" placeholder="Ask about deliveries, drivers or on-time rate" aria-label="Your question">
+            <button class="btn primary" id="ask" type="submit">Ask</button>
+          </form>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Event stream</h2>
+        <p class="note" style="margin:-6px 0 12px">What the chat receives, in order.</p>
+        <div class="log" id="events" style="max-height:520px"><span class="t">No run yet.</span></div>
+      </div>
+    </div>
+  </main>
+  <footer class="label"><span>Moslem Asaad</span><a href="../" style="text-decoration:none">Back to portfolio</a></footer>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var running = false, stopFlag = false;
+
+  // made-up data for the demo
+  var DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  var LATE = [14, 9, 11, 7, 18, 5, 3];
+  var DRIVERS = [
+    ["Noa K.", 142, "98.6%"], ["Omar S.", 131, "97.7%"], ["Lior B.", 127, "96.9%"], ["Maya D.", 119, "96.6%"], ["Sam R.", 104, "95.2%"]
+  ];
+
+  var ANSWERS = [
+    { keys: ["late", "delay"], tool: "query_deliveries", args: "status=late, range=last_7_days",
+      text: "There were 67 late deliveries in the last 7 days, out of 1,840. Friday was the worst day with 18 late deliveries, and Sunday the best with 3. Friday also had the most orders, so lateness is rising with volume. Checking capacity on Fridays would be a good next step.",
+      vis: { type: "bar", title: "Late deliveries per day", labels: DAYS, values: LATE } },
+    { keys: ["driver", "best", "top"], tool: "rank_drivers", args: "metric=on_time_rate, limit=5",
+      text: "Here are the top five drivers by on-time rate this week. Noa K. completed the most deliveries (142) with a 98.6% on-time rate. All five are above 95%.",
+      vis: { type: "table", head: ["Driver", "Deliveries", "On time"], rows: DRIVERS } },
+    { keys: ["rate", "on-time", "ontime", "time"], tool: "query_kpis", args: "kpi=on_time_rate, range=last_7_days",
+      text: "The on-time rate for the last 7 days is 96.4%, up 1.1 points from the week before. The average delivery took 38 minutes, and 2.2% of orders needed a second attempt." },
+    { keys: ["order", "today", "volume", "how many"], tool: "count_orders", args: "range=today",
+      text: "There are 286 orders today. 241 are already delivered, 38 are in progress, and 7 are not assigned yet. The 7 unassigned orders are all in the north zone." }
+  ];
+  var FALLBACK = { tool: null, text: "I can answer questions about late deliveries, top drivers, the on-time rate and today's orders. Try one of the suggestions below." };
+
+  var CHIPS = ["Which days had the most late deliveries?", "Who are the top drivers this week?", "What is our on-time rate?", "How many orders do we have today?"];
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function stamp() { return new Date().toLocaleTimeString([], { hour12: false }); }
+  function ev(name, detail) {
+    var box = $("events");
+    if (/No run yet/.test(box.textContent) && box.children.length === 1) box.innerHTML = "";
+    var d = document.createElement("div");
+    d.innerHTML = '<span class="t">' + stamp() + '</span> <span class="ok">' + name + "</span>" + (detail ? ' <span class="t">' + esc(detail) + "</span>" : "");
+    box.appendChild(d); box.scrollTop = box.scrollHeight;
+  }
+  function scroll() { var m = $("msgs"); m.scrollTop = m.scrollHeight; }
+
+  function pick(q) {
+    var s = q.toLowerCase();
+    for (var i = 0; i < ANSWERS.length; i++) {
+      for (var k = 0; k < ANSWERS[i].keys.length; k++) if (s.indexOf(ANSWERS[i].keys[k]) !== -1) return ANSWERS[i];
+    }
+    return FALLBACK;
+  }
+
+  function barSvg(v) {
+    var W = 420, H = 190, L = 8, B = 28, T = 10, max = Math.max.apply(null, v.values), bw = (W - L * 2) / v.values.length;
+    var s = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(v.title) + '">';
+    v.values.forEach(function (n, i) {
+      var h = (H - B - T) * (n / max), x = L + i * bw + 6, y = H - B - h;
+      s += '<rect class="b" x="' + x + '" y="' + y + '" width="' + (bw - 12) + '" height="' + h + '" rx="2"/>';
+      s += '<text class="v" x="' + (x + (bw - 12) / 2) + '" y="' + (y - 4) + '" text-anchor="middle">' + n + "</text>";
+      s += '<text class="l" x="' + (x + (bw - 12) / 2) + '" y="' + (H - 10) + '" text-anchor="middle">' + v.labels[i] + "</text>";
+    });
+    return s + "</svg>";
+  }
+  function visHtml(v) {
+    if (!v) return "";
+    if (v.type === "bar") return '<div class="vis"><div class="label" style="margin-bottom:4px">' + esc(v.title) + "</div>" + barSvg(v) + "</div>";
+    var t = '<table class="mini-table"><thead><tr>' + v.head.map(function (h) { return "<th>" + esc(h) + "</th>"; }).join("") + "</tr></thead><tbody>";
+    v.rows.forEach(function (r) { t += "<tr>" + r.map(function (c) { return "<td>" + esc(c) + "</td>"; }).join("") + "</tr>"; });
+    return t + "</tbody></table>";
+  }
+
+  function addUser(text) {
+    var d = document.createElement("div"); d.className = "bubble user"; d.textContent = text; $("msgs").appendChild(d); scroll();
+  }
+
+  async function run(q) {
+    if (running || !q.trim()) return;
+    running = true; stopFlag = false; $("ask").disabled = true; $("stop").disabled = false; $("chips").style.display = "none";
+    addUser(q);
+    var a = pick(q);
+    ev("RUN_STARTED", "thread=demo");
+    await sleep(350);
+
+    if (a.tool) {
+      var tc = document.createElement("div"); tc.className = "toolcall running"; tc.textContent = a.tool + "(" + a.args + ")";
+      $("msgs").appendChild(tc); scroll();
+      ev("TOOL_CALL_START", a.tool);
+      await sleep(900);
+      tc.className = "toolcall done";
+      ev("TOOL_CALL_END", a.tool + " returned data");
+    }
+
+    var b = document.createElement("div"); b.className = "bubble bot";
+    b.innerHTML = '<span class="txt"></span><span class="cursor"></span>';
+    $("msgs").appendChild(b);
+    ev("TEXT_MESSAGE_START", "role=assistant");
+    var words = a.text.split(" "), txt = b.querySelector(".txt");
+    for (var i = 0; i < words.length; i++) {
+      if (stopFlag) { ev("RUN_CANCELLED", "stopped by user"); break; }
+      txt.textContent += (i ? " " : "") + words[i];
+      if (i % 6 === 0) ev("TEXT_MESSAGE_CONTENT", "+" + (words[i].length + 1) + " chars");
+      scroll();
+      await sleep(45);
+    }
+    b.querySelector(".cursor").remove();
+    if (!stopFlag) {
+      ev("TEXT_MESSAGE_END");
+      if (a.vis) { b.insertAdjacentHTML("beforeend", visHtml(a.vis)); ev("STATE_DELTA", "chart data attached"); }
+      ev("RUN_FINISHED");
+    }
+    scroll();
+    running = false; $("ask").disabled = false; $("stop").disabled = true; $("chips").style.display = "";
+    $("q").focus();
+  }
+
+  function renderChips() {
+    $("chips").innerHTML = "";
+    CHIPS.forEach(function (c) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = c;
+      b.addEventListener("click", function () { run(c); }); $("chips").appendChild(b);
+    });
+  }
+  function clearChat() {
+    if (running) { stopFlag = true; }
+    $("msgs").innerHTML = '<div class="bubble bot">Hi! I am a demo analyst for a made-up delivery company. Ask me about late deliveries, drivers, the on-time rate or today\'s orders.</div>';
+    $("events").innerHTML = '<span class="t">No run yet.</span>';
+    renderChips(); $("chips").style.display = "";
+  }
+
+  $("form").addEventListener("submit", function (e) { e.preventDefault(); var v = $("q").value; $("q").value = ""; run(v); });
+  $("stop").addEventListener("click", function () { stopFlag = true; });
+  $("clear").addEventListener("click", clearChat);
+  clearChat();
+})();
+</script>
+</body>
+</html>

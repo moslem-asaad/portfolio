@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Webhook to Discord Playground</title>
+<meta name="description" content="Interactive demo: send a Gitea webhook, see the duplicate filter work and the Discord message it produces.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+  <header class="bar">
+    <a class="label" href="../" style="text-decoration:none">← Portfolio · Moslem Asaad</a>
+    <nav class="label" aria-label="Demos">
+      <a href="qr-document.html">QR document</a>
+      <a href="webhook-playground.html" aria-current="page" style="color:var(--accent)">Webhook playground</a>
+      <a href="analyst-chat.html">Analyst chat</a>
+      <button class="theme-btn" data-theme-toggle type="button">Dark mode</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="demo-head">
+      <span class="label">Live demo · 2 of 3</span>
+      <h1 style="margin-top:10px">Webhook to Discord</h1>
+      <p class="lede">A webhook is a message one system sends to another when something happens. Here, a self-hosted Gitea server sends events, and a small Spring Boot service I wrote turns them into Discord messages. This playground re-creates its main rules in your browser.</p>
+      <p class="disclaimer"><b>Demo only.</b> This is a simplified JavaScript re-creation of my <a href="https://github.com/moslem-asaad/giteaNotificator" target="_blank" rel="noopener">giteaNotificator</a> service. Nothing is sent to a real Discord server. The channels, names and message format here are simplified for the demo.</p>
+    </div>
+
+    <div class="demo" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+      <div class="stack-v">
+        <div class="panel">
+          <h2>1. Build a webhook</h2>
+          <div class="row2">
+            <label class="field"><span>Event type</span>
+              <select id="event">
+                <option value="push">push</option>
+                <option value="issues">issues</option>
+                <option value="pull_request">pull_request</option>
+              </select>
+            </label>
+            <label class="field"><span>Delivery ID</span>
+              <input id="delivery" value="d-1001">
+            </label>
+          </div>
+          <label class="field"><span>JSON body</span><textarea id="body" spellcheck="false"></textarea></label>
+          <div class="actions" style="margin-top:0">
+            <button class="btn primary" id="send" type="button">Send webhook</button>
+            <button class="btn" id="twice" type="button">Send twice quickly</button>
+          </div>
+          <p class="note">Try it: press <b>Send twice quickly</b>. The same delivery ID arrives two times within 5 seconds, and the second one is ignored.</p>
+          <div class="actions" style="margin-top:10px">
+            <button class="btn small" id="sample-empty" type="button">Empty body</button>
+            <button class="btn small" id="sample-bad" type="button">Broken JSON</button>
+            <button class="btn small" id="sample-reset" type="button">Reset body</button>
+            <button class="btn small" id="newid" type="button">New delivery ID</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Rules in this demo</h2>
+          <ol style="margin:0;padding-left:20px;font-size:15px;line-height:1.7">
+            <li>An empty body returns <b>400</b>.</li>
+            <li>The same delivery ID within <b>5 seconds</b> is ignored.</li>
+            <li>A repository called <code>giteaFinalProject</code> posts to <b>#team-updates</b>.</li>
+            <li>Events by user <code>moslem</code> post to <b>#my-events</b>.</li>
+            <li>Anything else is accepted but not posted.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="stack-v">
+        <div class="panel">
+          <h2>2. What the service did</h2>
+          <div class="log" id="log" aria-live="polite"><span class="t">Waiting for a webhook.</span></div>
+          <div class="counters">
+            <div><b id="cOk">0</b><span>messages posted</span></div>
+            <div><b id="cDup">0</b><span>duplicates ignored</span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>3. Discord</h2>
+          <div id="discord"><div class="empty">Messages appear here.</div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="label"><span>Moslem Asaad</span><a href="../" style="text-decoration:none">Back to portfolio</a></footer>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var recent = {}, ok = 0, dup = 0, counter = 1001;
+  var WINDOW = 5000, TARGET_USER = "moslem", COMMON_REPO = "giteaFinalProject";
+
+  var SAMPLES = {
+    push: { ref: "refs/heads/main", repository: { name: "giteaFinalProject", full_name: "moslem/giteaFinalProject" }, pusher: { login: "moslem" },
+      commits: [{ id: "a1b2c3d4e5f6", message: "Add webhook controller" }, { id: "9f8e7d6c5b4a", message: "Ignore duplicate deliveries" }] },
+    issues: { action: "opened", issue: { number: 12, title: "Notifier posts twice" }, repository: { name: "giteaFinalProject", full_name: "moslem/giteaFinalProject" }, sender: { login: "dana" } },
+    pull_request: { action: "opened", number: 7, pull_request: { title: "Add API tests" }, repository: { name: "side-project", full_name: "moslem/side-project" }, sender: { login: "moslem" } }
+  };
+  function sampleText() { return JSON.stringify(SAMPLES[$("event").value], null, 2); }
+  $("body").value = sampleText();
+  $("event").addEventListener("change", function () { $("body").value = sampleText(); });
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function stamp() { return new Date().toLocaleTimeString([], { hour12: false }); }
+  function log(msg, cls) {
+    var box = $("log");
+    if (/Waiting/.test(box.textContent) && box.children.length === 1) box.innerHTML = "";
+    var d = document.createElement("div");
+    d.innerHTML = '<span class="t">' + stamp() + '</span> <span class="' + (cls || "") + '">' + esc(msg) + "</span>";
+    box.appendChild(d); box.scrollTop = box.scrollHeight;
+  }
+
+  function buildMessage(type, p) {
+    var repo = (p.repository && p.repository.full_name) || "unknown repo";
+    if (type === "push") {
+      var branch = String(p.ref || "").replace("refs/heads/", "");
+      var who = (p.pusher && p.pusher.login) || "someone";
+      var cs = p.commits || [];
+      var lines = cs.map(function (c) { return "• `" + String(c.id).slice(0, 7) + "` " + c.message; }).join("\n");
+      return "**" + who + "** pushed " + cs.length + " commit" + (cs.length === 1 ? "" : "s") + " to `" + repo + ":" + branch + "`" + (lines ? "\n" + lines : "");
+    }
+    if (type === "issues") {
+      return "**" + ((p.sender && p.sender.login) || "someone") + "** " + p.action + " issue #" + (p.issue && p.issue.number) + " in `" + repo + "`: " + (p.issue && p.issue.title);
+    }
+    return "**" + ((p.sender && p.sender.login) || "someone") + "** " + p.action + " pull request #" + p.number + " in `" + repo + "`: " + (p.pull_request && p.pull_request.title);
+  }
+  function mdToHtml(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`(.+?)`/g, "<code>$1</code>"); }
+
+  function post(channel, message) {
+    var area = $("discord");
+    if (area.querySelector(".empty")) area.innerHTML = "";
+    var el = document.createElement("div");
+    el.className = "discord";
+    el.innerHTML = '<div class="chan"># ' + esc(channel) + '</div><div class="msg"><div class="av">G</div><div><div><span class="nm">Gitea Notifier</span><span class="bot">BOT</span></div><div class="body">' + mdToHtml(message) + "</div></div></div>";
+    area.insertBefore(el, area.firstChild);
+  }
+
+  function handle(text, id, type) {
+    log("Received POST /gitea/webhook (delivery " + id + ", event " + type + ")", "");
+    var payload;
+    try { payload = JSON.parse(text); }
+    catch (e) { log("400 Bad Request: the body is not valid JSON", "err"); return; }
+    if (!payload || (typeof payload === "object" && Object.keys(payload).length === 0)) {
+      log("400 Invalid payload: request body is empty", "err"); return;
+    }
+    var now = Date.now();
+    if (recent[id] && now - recent[id] < WINDOW) {
+      dup++; $("cDup").textContent = dup;
+      log("200 Duplicate webhook ignored (same delivery ID within 5 s)", "warn"); return;
+    }
+    recent[id] = now;
+    var msg = buildMessage(type, payload);
+    var repo = payload.repository && payload.repository.name;
+    var user = (payload.pusher && payload.pusher.login) || (payload.sender && payload.sender.login);
+    var toCommon = repo === COMMON_REPO, toMine = user === TARGET_USER;
+    if (!toCommon && !toMine) { log("200 OK, but no channel rule matched. Nothing was posted.", "warn"); return; }
+    if (toCommon) { post("team-updates", msg); ok++; log("Posted to #team-updates (repository rule)", "ok"); }
+    if (toMine) { post("my-events", msg); ok++; log("Posted to #my-events (user rule)", "ok"); }
+    $("cOk").textContent = ok;
+    log("200 OK", "ok");
+  }
+
+  function send() { handle($("body").value, $("delivery").value.trim() || "d-0", $("event").value); }
+  $("send").addEventListener("click", send);
+  $("twice").addEventListener("click", function () {
+    send(); setTimeout(send, 400);
+  });
+  $("sample-empty").addEventListener("click", function () { $("body").value = "{}"; });
+  $("sample-bad").addEventListener("click", function () { $("body").value = '{ "action": "opened", '; });
+  $("sample-reset").addEventListener("click", function () { $("body").value = sampleText(); });
+  $("newid").addEventListener("click", function () { counter++; $("delivery").value = "d-" + counter; });
+})();
+</script>
+</body>
+</html>

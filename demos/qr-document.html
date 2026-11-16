@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QR Transport Document Demo</title>
+<meta name="description" content="Interactive demo: start a route, watch a compliance document with a QR code get produced, then scan it as a roadside inspector.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="../assets/qrcode.min.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+  <header class="bar">
+    <a class="label" href="../" style="text-decoration:none">← Portfolio · Moslem Asaad</a>
+    <nav class="label" aria-label="Demos">
+      <a href="qr-document.html" aria-current="page" style="color:var(--accent)">QR document</a>
+      <a href="webhook-playground.html">Webhook playground</a>
+      <a href="analyst-chat.html">Analyst chat</a>
+      <button class="theme-btn" data-theme-toggle type="button">Dark mode</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="demo-head">
+      <span class="label">Live demo · 1 of 3</span>
+      <h1 style="margin-top:10px">QR transport document</h1>
+      <p class="lede">Spain's Sustainable Mobility Law 9/2025 asks for a digital transport document that a roadside inspector can scan. This demo walks through the flow I built: start a route, get the document and its QR code, then scan it.</p>
+      <p class="disclaimer"><b>Demo only.</b> This is a small simulation written for this site. It runs in your browser. All names, plates and numbers are made up. It uses no Bringg code and no Bringg data.</p>
+    </div>
+
+    <div class="demo">
+      <div class="stack-v">
+        <form class="panel" id="form" autocomplete="off">
+          <h2>1. Route details</h2>
+          <label class="field"><span>Route ID</span><input id="route" value="RT-20417" required></label>
+          <label class="field"><span>Company</span><input id="company" value="Demo Logistics Ltd" required></label>
+          <label class="field"><span>Driver</span><input id="driver" value="Alex Demo" required></label>
+          <div class="row2">
+            <label class="field"><span>Truck plate</span><input id="truck" value="1234-ABC" required></label>
+            <label class="field"><span>Trailer plate</span><input id="trailer" value="R-5678-BCD" required></label>
+          </div>
+          <div class="row2">
+            <label class="field"><span>From</span><input id="from" value="Madrid, ES" required></label>
+            <label class="field"><span>To</span><input id="to" value="Valencia, ES" required></label>
+          </div>
+          <label class="field"><span>Goods</span><input id="goods" value="Packaged food, 18 pallets" required></label>
+          <div class="actions" style="margin-top:8px">
+            <button class="btn primary" id="start" type="submit">Start route</button>
+            <button class="btn" id="reset" type="button">Reset demo</button>
+          </div>
+          <p class="note">Tip: press <b>Start route</b> twice with the same Route ID. The second press shows how a retry never creates a second document.</p>
+          <div class="counters" aria-live="polite">
+            <div><b id="cDocs">0</b><span>documents created</span></div>
+            <div><b id="cDup">0</b><span>duplicates prevented</span></div>
+          </div>
+        </form>
+
+        <div class="panel">
+          <h2>Pipeline</h2>
+          <ol class="steps" id="steps">
+            <li data-s="0"><span class="dot">1</span><div><strong>Driver starts a route</strong><small>The platform publishes a route-started event.</small></div></li>
+            <li data-s="1"><span class="dot">2</span><div><strong>Eligibility check and claim</strong><small>One document per route, enforced when claiming.</small></div></li>
+            <li data-s="2"><span class="dot">3</span><div><strong>PDF render</strong><small>Template plus plates, rendered to PDF.</small></div></li>
+            <li data-s="3"><span class="dot">4</span><div><strong>Store and notify</strong><small>Save with a token and expiry, send the webhook.</small></div></li>
+            <li data-s="4"><span class="dot">5</span><div><strong>Roadside scan</strong><small>Inspector opens the QR link.</small></div></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="stack-v">
+        <div id="docArea">
+          <div class="empty">Start a route to produce a document.</div>
+        </div>
+
+        <div class="panel" id="scanPanel" hidden>
+          <h2>Roadside inspector</h2>
+          <p style="color:var(--muted);font-size:15px">Scan the QR code with your phone, or press the button to scan it here.</p>
+          <div class="actions" style="margin-top:14px">
+            <button class="btn primary" id="scan" type="button">Simulate roadside scan</button>
+            <button class="btn" id="print" type="button">Print or save as PDF</button>
+          </div>
+          <label class="check"><input type="checkbox" id="expired"> Pretend 8 days have passed (document expired)</label>
+        </div>
+
+        <div class="panel" id="hookPanel" hidden>
+          <h2>Webhook sent to the customer</h2>
+          <div class="codeblock" id="hook"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Event log</h2>
+          <div class="log" id="log" aria-live="polite"><span class="t">Waiting for a route.</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="label"><span>Moslem Asaad</span><a href="../" style="text-decoration:none">Back to portfolio</a></footer>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var claimed = {}, docs = 0, dups = 0, lastDoc = null, busy = false;
+  var DAY = 86400000;
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function stamp() { return new Date().toLocaleTimeString([], { hour12: false }); }
+  function log(msg, cls) {
+    var box = $("log");
+    if (box.firstChild && box.firstChild.className === "t" && box.children.length === 1 && /Waiting/.test(box.textContent)) box.innerHTML = "";
+    var d = document.createElement("div");
+    d.innerHTML = '<span class="t">' + stamp() + "</span> <span class=\"" + (cls || "") + '">' + esc(msg) + "</span>";
+    box.appendChild(d); box.scrollTop = box.scrollHeight;
+  }
+  function setStep(i, state) {
+    var li = document.querySelector('#steps li[data-s="' + i + '"]');
+    li.className = state;
+    li.querySelector(".dot").textContent = state === "done" ? "✓" : state === "skip" ? "=" : String(i + 1);
+  }
+  function resetSteps() { for (var i = 0; i < 5; i++) setStep(i, ""); }
+  function token() { var s = ""; while (s.length < 14) s += Math.random().toString(36).slice(2); return s.slice(0, 14); }
+  function fmt(ts) { return new Date(ts).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }); }
+
+  function qrSvg(text) {
+    if (!window.qrcode) return null;
+    var q = qrcode(0, "M"); q.addData(text); q.make();
+    return q.createSvgTag(3, 0);
+  }
+  function link(d) {
+    var data = { n: d.number, r: d.route, c: d.company, d: d.driver, t: d.truck, tr: d.trailer, f: d.from, to: d.to, g: d.goods, x: d.expires, k: d.token };
+    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    return location.origin + location.pathname + "#doc=" + b64;
+  }
+  function readLink() {
+    var m = /#doc=(.+)$/.exec(location.hash);
+    if (!m) return null;
+    try { var o = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, "+").replace(/_/g, "/")))));
+      return { number: o.n, route: o.r, company: o.c, driver: o.d, truck: o.t, trailer: o.tr, from: o.f, to: o.to, goods: o.g, expires: o.x, token: o.k };
+    } catch (e) { return null; }
+  }
+
+  function docHtml(d, opts) {
+    opts = opts || {};
+    var qr = opts.noQr ? "" : qrSvg(link(d));
+    var qrBlock = opts.noQr ? "" : '<div class="qrbox">' + (qr || "QR library could not load. Check your connection.") + "<div>Scan to verify</div></div>";
+    var status = opts.status ? '<div class="stamp ' + (opts.status === "VALID" ? "" : "bad") + '">' + opts.status + "</div>" : "";
+    return '<div class="doc" id="doc">' +
+      '<div class="doc-top"><div><h3>Digital transport document</h3><div class="sub2">Demo · fictional data · No. ' + esc(d.number) + "</div>" + status + "</div>" + qrBlock + "</div>" +
+      '<div class="doc-grid">' +
+      '<div><b>Route</b>' + esc(d.route) + "</div>" +
+      '<div><b>Company</b>' + esc(d.company) + "</div>" +
+      '<div><b>Driver</b>' + esc(d.driver) + "</div>" +
+      '<div><b>Truck plate</b>' + esc(d.truck) + "</div>" +
+      '<div><b>Trailer plate</b>' + esc(d.trailer) + "</div>" +
+      '<div><b>Valid until</b>' + esc(fmt(d.expires)) + "</div>" +
+      '<div><b>From</b>' + esc(d.from) + "</div>" +
+      '<div><b>To</b>' + esc(d.to) + "</div>" +
+      '<div class="wide"><b>Goods</b>' + esc(d.goods) + "</div></div>" +
+      '<div class="doc-foot"><span>Legal basis: Sustainable Mobility Law 9/2025 (Spain)</span><span>Token ' + esc(d.token.slice(0, 6)) + "…</span></div></div>";
+  }
+
+  function showDoc(d) {
+    lastDoc = d;
+    $("docArea").innerHTML = docHtml(d);
+    $("scanPanel").hidden = false;
+    $("hookPanel").hidden = false;
+    $("hook").textContent = JSON.stringify({
+      event: "documents_ready",
+      route_id: d.route,
+      document: { number: d.number, url: link(d).slice(0, 70) + "…", expires_at: new Date(d.expires).toISOString() },
+      sent_at: new Date().toISOString()
+    }, null, 2);
+  }
+
+  async function startRoute(e) {
+    e.preventDefault();
+    if (busy) return;
+    busy = true; $("start").disabled = true; resetSteps();
+    var d = {
+      route: $("route").value.trim(), company: $("company").value.trim(), driver: $("driver").value.trim(),
+      truck: $("truck").value.trim(), trailer: $("trailer").value.trim(), from: $("from").value.trim(),
+      to: $("to").value.trim(), goods: $("goods").value.trim()
+    };
+    log("Driver " + d.driver + " started route " + d.route, "");
+    setStep(0, "active"); await sleep(450); setStep(0, "done"); log("route-started event published", "ok");
+
+    setStep(1, "active"); await sleep(550);
+    var existing = claimed[d.route];
+    if (existing) {
+      setStep(1, "done");
+      dups++; $("cDup").textContent = dups;
+      log("Route " + d.route + " is already claimed. Returning the existing document, nothing new is created.", "warn");
+      setStep(2, "skip"); setStep(3, "skip");
+      showDoc(existing);
+      busy = false; $("start").disabled = false; return;
+    }
+    claimed[d.route] = { pending: true };
+    setStep(1, "done"); log("Claimed route " + d.route + " (merchant is eligible)", "ok");
+
+    setStep(2, "active"); log("Rendering PDF with plates " + d.truck + " / " + d.trailer + "…", "");
+    await sleep(900); setStep(2, "done"); log("PDF rendered", "ok");
+
+    docs++; $("cDocs").textContent = docs;
+    d.number = "TD-2026-" + String(1000 + docs);
+    d.token = token();
+    d.expires = Date.now() + 7 * DAY;
+    claimed[d.route] = d;
+
+    setStep(3, "active"); await sleep(600);
+    setStep(3, "done"); log("Stored document " + d.number + ", expires in 7 days. documents_ready webhook sent.", "ok");
+    showDoc(d);
+    log("Document is ready. Use the roadside scan below.", "");
+    busy = false; $("start").disabled = false;
+  }
+
+  function inspector(d) {
+    var expired = d.expires < Date.now() || $("expired").checked;
+    setStep(4, "active");
+    if (expired) {
+      $("docArea").innerHTML = '<div class="doc" id="doc"><div class="doc-top"><div><h3>Document expired</h3><div class="sub2">Token ' + esc(d.token.slice(0, 6)) + '…</div><div class="stamp bad">EXPIRED</div></div></div><p style="margin-top:14px;font-size:15px">This document is no longer available. Documents are kept for 7 days after the route ends. Ask the carrier for a new one.</p></div>';
+      log("Scan: token expired, clear error shown to the inspector", "err");
+      setStep(4, "done");
+    } else {
+      $("docArea").innerHTML = docHtml(d, { noQr: true, status: "VALID" });
+      log("Scan: token valid, PDF returned to the inspector", "ok");
+      setStep(4, "done");
+    }
+  }
+
+  $("form").addEventListener("submit", startRoute);
+  $("scan").addEventListener("click", function () {
+    if (!lastDoc) return;
+    history.replaceState(null, "", link(lastDoc).slice(link(lastDoc).indexOf("#")));
+    inspector(lastDoc);
+  });
+  $("print").addEventListener("click", function () { if (lastDoc) window.print(); });
+  $("reset").addEventListener("click", function () {
+    claimed = {}; docs = 0; dups = 0; lastDoc = null;
+    $("cDocs").textContent = "0"; $("cDup").textContent = "0";
+    $("docArea").innerHTML = '<div class="empty">Start a route to produce a document.</div>';
+    $("scanPanel").hidden = true; $("hookPanel").hidden = true;
+    $("log").innerHTML = '<span class="t">Waiting for a route.</span>'; resetSteps();
+    history.replaceState(null, "", location.pathname);
+  });
+
+  // opened from a QR scan: show the inspector view
+  var fromScan = readLink();
+  if (fromScan) {
+    lastDoc = fromScan;
+    document.querySelector(".demo").style.gridTemplateColumns = "minmax(0,1fr)";
+    document.querySelector(".stack-v").hidden = true;
+    $("scanPanel").hidden = false;
+    $("scan").textContent = "Check again";
+    $("scan").onclick = function () { inspector(fromScan); };
+    inspector(fromScan);
+  }
+})();
+</script>
+</body>
+</html>
